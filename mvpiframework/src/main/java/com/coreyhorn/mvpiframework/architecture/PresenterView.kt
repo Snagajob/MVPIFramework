@@ -56,7 +56,7 @@ interface PresenterView<E : Event, A : Action, R : Result, S : State> {
     fun attachStream() {
         attachAttempted = true
         presenter?.let {
-            it.attachEventStream(events
+            it.attachEventStream(events.replay()
                     .doOnNext {
                         if (MVPISettings.loggingEnabled) {
                             Log.d(LOGGING_TAG, it.toString())}
