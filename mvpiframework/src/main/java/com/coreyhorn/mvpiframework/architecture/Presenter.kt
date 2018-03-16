@@ -42,7 +42,7 @@ abstract class Presenter<E : Event, A : Action, R : Result, S : State> {
         eventDisposables = CompositeDisposable()
     }
 
-    abstract fun attachResultStream(results: Observable<R>)
+    abstract fun attachResultStream(results: ConnectableObservable<R>)
 
 }
 
