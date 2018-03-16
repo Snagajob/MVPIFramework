@@ -4,14 +4,14 @@ import android.util.Log
 import com.coreyhorn.mvpiframework.LOGGING_TAG
 import com.coreyhorn.mvpiframework.MVPISettings
 import com.coreyhorn.mvpiframework.basemodels.Result
-import io.reactivex.Observable
+import io.reactivex.observables.ConnectableObservable
 import io.reactivex.subjects.PublishSubject
 
 abstract class Interactor<R : Result> {
 
     protected val results: PublishSubject<R> = PublishSubject.create()
 
-    fun results(): Observable<R> =
+    fun results(): ConnectableObservable<R> =
             results.doOnNext {
                 if (MVPISettings.loggingEnabled) {
                     Log.d(LOGGING_TAG, it.toString())

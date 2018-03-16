@@ -20,11 +20,7 @@ abstract class Presenter<E : Event, A : Action, R : Result, S : State> {
 
     protected var eventDisposables = CompositeDisposable()
 
-    fun actions(): Observable<A> = actions.doOnNext {
-        if (MVPISettings.loggingEnabled) {
-            Log.d(LOGGING_TAG, it.toString())
-        }
-    }
+    fun actions(): ConnectableObservable<A> = actions.replay()
 
     fun states(): Observable<S> = states.doOnNext {
         if (MVPISettings.loggingEnabled) {
