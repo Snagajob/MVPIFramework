@@ -9,6 +9,7 @@ import com.coreyhorn.mvpiframework.basemodels.Result
 import com.coreyhorn.mvpiframework.basemodels.State
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observables.ConnectableObservable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
@@ -31,7 +32,7 @@ abstract class Presenter<E : Event, A : Action, R : Result, S : State> {
         }
     }
 
-    open fun attachEventStream(events: Observable<E>) {
+    open fun attachEventStream(events: ConnectableObservable<E>) {
         eventDisposables.clear()
         eventDisposables = CompositeDisposable()
     }
