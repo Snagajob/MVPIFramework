@@ -53,11 +53,12 @@ interface PresenterView<E : Event, A : Action, R : Result, S : State> {
     fun attachStream() {
         attachAttempted = true
         presenter?.let {
-            val connectableEvents = events.replay().refCount()
+            val connectableEvents = events.replay()
             it.attachEventStream(connectableEvents)
             it.states()
                     .subscribe { renderViewStateOnMainThread(it) }
                     .disposeWith(disposables)
+            connectableEvents.connect()
         }
     }
 
