@@ -9,12 +9,13 @@ import com.coreyhorn.mvpiframework.basemodels.Result
 import com.coreyhorn.mvpiframework.basemodels.State
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.ReplaySubject
 
 abstract class Presenter<E : Event, A : Action, R : Result, S : State> {
 
     protected val actions: ReplaySubject<A> = ReplaySubject.create()
-    protected val states: ReplaySubject<S> = ReplaySubject.create()
+    protected val states: BehaviorSubject<S> = BehaviorSubject.create()
 
     protected var eventDisposables = CompositeDisposable()
 
