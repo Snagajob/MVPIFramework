@@ -11,6 +11,7 @@ import com.coreyhorn.mvpiframework.basemodels.Event
 import com.coreyhorn.mvpiframework.basemodels.Result
 import com.coreyhorn.mvpiframework.basemodels.State
 import com.coreyhorn.mvpiframework.disposeWith
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -50,11 +51,10 @@ interface PresenterView<E : Event, A : Action, R : Result, S : State> {
         }
     }
 
-    fun attachStream() {
+    fun attachStream(events: Observable<E>) {
         attachAttempted = true
         presenter?.let {
-            val whatever = events.replay().refCount()
-            it.attachEventStream(whatever)
+            it.attachEventStream(events)
             it.states()
                     .subscribe { renderViewStateOnMainThread(it) }
                     .disposeWith(disposables)
@@ -70,7 +70,7 @@ interface PresenterView<E : Event, A : Action, R : Result, S : State> {
 
     fun onPresenterAvailable(presenter: Presenter<E, A, R, S>) {
         if (attachAttempted) {
-            attachStream()
+            attachStream(events.replay().refCount())
         }
     }
 

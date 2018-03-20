@@ -24,7 +24,7 @@ abstract class PresenterActivity<E : Event, A : Action, R : Result, S : State> :
 
     override fun onResume() {
         super.onResume()
-        attachStream()
+        attachStream(events.replay().refCount())
         setupViewBindings()
     }
 
