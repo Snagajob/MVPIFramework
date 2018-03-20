@@ -9,7 +9,6 @@ import com.coreyhorn.mvpiframework.basemodels.Result
 import com.coreyhorn.mvpiframework.basemodels.State
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observables.ConnectableObservable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.ReplaySubject
 
@@ -20,7 +19,11 @@ abstract class Presenter<E : Event, A : Action, R : Result, S : State> {
 
     protected var eventDisposables = CompositeDisposable()
 
-    fun actions(): ConnectableObservable<A> = actions.replay()
+    fun actions(): Observable<A> = actions.doOnNext {
+        if (MVPISettings.loggingEnabled) {
+            Log.d(LOGGING_TAG, it.toString())
+        }
+    }
 
     fun states(): Observable<S> = states.doOnNext {
         if (MVPISettings.loggingEnabled) {
