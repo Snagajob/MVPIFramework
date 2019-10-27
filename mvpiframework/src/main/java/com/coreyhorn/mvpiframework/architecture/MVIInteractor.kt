@@ -6,7 +6,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.ReplaySubject
 
-abstract class MVIInteractor<E: Event, R: Result>(events: Observable<E>): Interactor<E, R> {
+abstract class MVIInteractor<E: Event, R: Result>(var events: Observable<E>): Interactor<E, R> {
 
     private val results: ReplaySubject<R> = ReplaySubject.create()
 
@@ -20,6 +20,11 @@ abstract class MVIInteractor<E: Event, R: Result>(events: Observable<E>): Intera
 
     protected fun pushResult(result: R) {
         results.onNext(result)
+    }
+
+    fun setEventStream(events: Observable<E>)
+    {
+        this.events = events
     }
 }
 
