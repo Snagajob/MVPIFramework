@@ -1,5 +1,6 @@
 package com.coreyhorn.mvpiframework.architecture
 
+import android.util.Log
 import com.coreyhorn.mvpiframework.basemodels.Event
 import com.coreyhorn.mvpiframework.basemodels.Result
 import io.reactivex.Observable
@@ -21,6 +22,7 @@ abstract class MVIInteractor<E: Event, R: Result>(events: Observable<E>): Intera
     fun results(): Observable<R> = results
 
     open fun destroy() {
+        Log.d("stuff", "interactor destroyed")
         disposables.clear()
     }
 

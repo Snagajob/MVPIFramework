@@ -54,6 +54,7 @@ interface MVIView<E: Event, R: Result, S: State> {
             }
 
             override fun onLoaderReset(loader: Loader<MVIPresenter<E, R, S>>?) {
+                Log.d("stuff", "onLoaderReset")
                 presenter?.destroy()
                 presenter = null
             }

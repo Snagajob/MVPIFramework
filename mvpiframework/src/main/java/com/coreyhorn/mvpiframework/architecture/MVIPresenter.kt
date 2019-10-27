@@ -62,6 +62,7 @@ abstract class MVIPresenter<E: Event, R: Result, S: State>(private val initialSt
     }
 
     fun destroy() {
+        Log.d("stuff", "presenter destroyed")
         disconnectEvents()
         interactorDisposables.clear()
         interactor?.destroy()
