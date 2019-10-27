@@ -14,9 +14,9 @@ class ExampleFragment: MVIFragment<ExampleEvent, ExampleResult, ExampleState>() 
         return inflater!!.inflate(R.layout.fragment_example, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initializePresenter(loaderManager, ExampleState("initial string"))
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        initializePresenter(activity.supportLoaderManager, ExampleState("initial string"))
     }
 
     override fun loaderId() = 2

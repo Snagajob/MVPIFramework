@@ -44,19 +44,30 @@ interface MVIView<E: Event, R: Result, S: State> {
         @Suppress("UNCHECKED_CAST")
         val loader = loaderManager.getLoader<MVIPresenter<E, R, S>>(loaderId()) as? PresenterLoader<E, R, S>
 
+        if (loader != null) {
+            Log.d("stuff", "actually found a loader!")
+        } else {
+            Log.d("stuff", "creating a new interactor")
+        }
+
         val callbacks = object: LoaderManager.LoaderCallbacks<MVIPresenter<E, R, S>> {
             override fun onCreateLoader(id: Int, args: Bundle?) = PresenterLoader(getContext()!!, ::presenterProvider, initialState)
 
             override fun onLoadFinished(loader: Loader<MVIPresenter<E, R, S>>?, data: MVIPresenter<E, R, S>?) {
-                data?.preWarm()
-                presenter = data
-                attachIfReady()
+                if (loader?.id == loaderId()) {
+                    data?.preWarm()
+                    presenter = data
+                    attachIfReady()
+                }
             }
 
             override fun onLoaderReset(loader: Loader<MVIPresenter<E, R, S>>?) {
-                Log.d("stuff", "onLoaderReset")
-                presenter?.destroy()
-                presenter = null
+                if (loader?.id == loaderId()) {
+                    Log.d("stuff", "onLoaderReset")
+                    detachView()
+                    presenter?.destroy()
+                    presenter = null
+                }
             }
         }
 
