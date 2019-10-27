@@ -22,10 +22,6 @@ abstract class MVIInteractor<E: Event, R: Result>(var events: Observable<E>): In
         results.onNext(result)
     }
 
-    fun setEventStream(events: Observable<E>)
-    {
-        this.events = events
-    }
 }
 
 private interface Interactor<E: Event, R: Result> {
