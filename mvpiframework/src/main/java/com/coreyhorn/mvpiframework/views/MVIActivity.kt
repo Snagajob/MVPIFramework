@@ -19,13 +19,13 @@ abstract class MVIActivity<E : MVIEvent, R : MVIResult, S : MVIState> : AppCompa
     override var events: ReplaySubject<E> = ReplaySubject.create()
 
     override var presenter: MVIViewModel<E, R, S>? = null
-    override var disposables = CompositeDisposable()
+    override var eventDisposables = CompositeDisposable()
     override var attached = false
     override var rootView: View? = null
 
     override fun onStart() {
         super.onStart()
-        attachIfReady()
+        attachToViewModel()
         val view = findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
         view.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -37,7 +37,7 @@ abstract class MVIActivity<E : MVIEvent, R : MVIResult, S : MVIState> : AppCompa
 
     override fun onResume() {
         super.onResume()
-        attachIfReady()
+        attachToViewModel()
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {

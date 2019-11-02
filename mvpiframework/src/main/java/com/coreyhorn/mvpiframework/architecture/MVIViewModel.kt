@@ -1,6 +1,6 @@
 package com.coreyhorn.mvpiframework.architecture
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.coreyhorn.mvpiframework.MVIEvent
@@ -8,33 +8,18 @@ import com.coreyhorn.mvpiframework.MVIResult
 import com.coreyhorn.mvpiframework.MVIState
 import com.coreyhorn.mvpiframework.disposeWith
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
 abstract class MVIViewModel<E: MVIEvent, R: MVIResult, S: MVIState>: ViewModel(), Presenter<E, R, S> {
 
-    val states: MutableLiveData<S> = MutableLiveData()
+    private val states: MutableLiveData<S> = MutableLiveData()
     private val events: PublishSubject<E> = PublishSubject.create()
-
-    private var eventDisposables = CompositeDisposable()
-    private var interactorDisposables = CompositeDisposable()
-
-    private var isInteractorConnected = false
-    private var isViewConnected = false
 
     private var interactor: MVIInteractor<E, R>? = null
 
-    override fun onCleared() {
-        Log.d("stuff", "clearing viewmodel: " + this)
-        eventDisposables.dispose()
-        interactorDisposables.dispose()
-        interactor?.destroy()
-        interactor = null
-        isInteractorConnected = false
-        isViewConnected = false
-
-        super.onCleared()
-    }
+    fun states(): LiveData<S> = states
 
     // Called before streams are connected to initialize interactor.
     // This will allow any asynchronous tasks to be started early.
@@ -58,6 +43,14 @@ abstract class MVIViewModel<E: MVIEvent, R: MVIResult, S: MVIState>: ViewModel()
                 *  Allows passing in data from savedInstanceState that
                 *  we can use if the ViewModel has been recreated */
                 this.results().scan(states.value?: state, ::resultToState)
+                        .distinctUntilChanged { oldValue, newValue ->
+                            if (allowDuplicateStates()) {
+                                true
+                            } else {
+                                oldValue == newValue
+                            }
+                        }
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe { states.value = it }
                         .disposeWith(interactorDisposables)
             }
@@ -76,6 +69,29 @@ abstract class MVIViewModel<E: MVIEvent, R: MVIResult, S: MVIState>: ViewModel()
         isViewConnected = false
         eventDisposables.clear()
     }
+
+    /**
+     * Override in the ViewModel and return true if you want to receive all state updates.
+     * Leaving untouched filters out duplicate states.
+     */
+    open fun allowDuplicateStates() = false
+
+    override fun onCleared() {
+        eventDisposables.dispose()
+        interactorDisposables.dispose()
+        interactor?.destroy()
+        interactor = null
+        isInteractorConnected = false
+        isViewConnected = false
+
+        super.onCleared()
+    }
+
+    private var eventDisposables = CompositeDisposable()
+    private var interactorDisposables = CompositeDisposable()
+
+    private var isInteractorConnected = false
+    private var isViewConnected = false
 
 }
 

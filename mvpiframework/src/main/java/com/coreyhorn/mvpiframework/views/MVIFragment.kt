@@ -16,13 +16,13 @@ abstract class MVIFragment<E: MVIEvent, R: MVIResult, S: MVIState>: Fragment(), 
 
     override var events: ReplaySubject<E> = ReplaySubject.create()
     override var presenter: MVIViewModel<E, R, S>? = null
-    override var disposables: CompositeDisposable = CompositeDisposable()
+    override var eventDisposables: CompositeDisposable = CompositeDisposable()
     override var rootView: View? = null
     override var attached: Boolean = false
 
     /**
      * In subclass, make sure initialState() function will return the proper value before
-     * calling super.onViewCreated()
+     * calling super.onViewCreated(). This allows seeding with data from savedInstanceState.
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,7 +38,7 @@ abstract class MVIFragment<E: MVIEvent, R: MVIResult, S: MVIState>: Fragment(), 
 
     override fun onStart() {
         super.onStart()
-        attachIfReady()
+        attachToViewModel()
     }
 
     override fun onStop() {

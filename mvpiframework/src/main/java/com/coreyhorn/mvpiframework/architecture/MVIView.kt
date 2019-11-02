@@ -1,6 +1,5 @@
 package com.coreyhorn.mvpiframework.architecture
 
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -14,7 +13,7 @@ interface MVIView<E: MVIEvent, R: MVIResult, S: MVIState> {
 
     var events: ReplaySubject<E>
     var presenter: MVIViewModel<E, R, S>?
-    var disposables: CompositeDisposable
+    var eventDisposables: CompositeDisposable
 
     var rootView: View?
 
@@ -25,40 +24,48 @@ interface MVIView<E: MVIEvent, R: MVIResult, S: MVIState> {
     fun presenterProvider(): MVIViewModel<E, R, S>
 
     fun renderState(view: View, state: S)
+
+    /**
+     * Passes an instance of the view in to bind your events to. If you are using Rx,
+     * make sure to dispose with eventDisposables so they are cleaned up automatically.
+     */
     fun setupViewBindings(view: View)
+
+    /**
+     * Used to provide an initial state to seed the ViewModel if it requires one.
+     * This can be used to provide date returned from your savedInstanceState.
+     */
     fun initialState(): S
 
-    // Called when the view is inflated and we have our initial / saved state provided by the Activity / Fragment
+    /**
+     * Call when the view is inflated and initialState() is returning the proper value
+     */
     fun viewReady(view: View, lifecycleOwner: LifecycleOwner, presenter: MVIViewModel<E, R, S>) {
         this.presenter = presenter
         this.lifecycleOwner = lifecycleOwner
         this.rootView = view
 
-        attachIfReady()
+        attachToViewModel()
     }
 
     fun detachView() {
-        Log.d("stuff", "detach view: " + this)
-        presenter?.states?.removeObservers(lifecycleOwner)
+        presenter?.states()?.removeObservers(lifecycleOwner)
         presenter?.detachView()
-        disposables.clear()
+        eventDisposables.clear()
         events = ReplaySubject.create()
         attached = false
     }
 
-    fun attachIfReady() {
-        if (readyToAttach()) {
-            Log.d("stuff", "attaching view: " + this)
+    fun attachToViewModel() {
+        if (!attached) {
             attached = true
-            disposables.clear()
-            disposables = CompositeDisposable()
+            eventDisposables.clear()
 
             rootView?.let { it.post { setupViewBindings(it) } }
             presenter?.let {
-                it.states.removeObservers(lifecycleOwner)
-                Log.d("stuff", "attaching events and states")
+                it.states().removeObservers(lifecycleOwner)
                 it.attachEvents(events, initialState())
-                it.states
+                it.states()
                         .observe(lifecycleOwner, object: Observer<S> {
                             override fun onChanged(state: S) {
                                 rootView?.let { view ->
@@ -73,6 +80,4 @@ interface MVIView<E: MVIEvent, R: MVIResult, S: MVIState> {
             }
         }
     }
-
-    private fun readyToAttach(): Boolean = !attached && presenter != null && rootView != null
 }
